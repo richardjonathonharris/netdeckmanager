@@ -1,7 +1,39 @@
-from django.shortcuts import render
+from django.shortcuts import render, HttpResponse
 import requests
 from collections import Counter
 import operator
+from django.core.exceptions import *
+import re
+
+def index(request):
+    return render(request, 'netdeckmanager/forms.html')
+
+def search_for_deck(request):
+    if request.method == 'POST':
+        deck1_request = request.POST.get('deck1', None)
+        deck2_request = request.POST.get('deck2', None)
+        refresh = request.POST.get('new_deck', None)
+        if refresh is not None:
+            return render(request, 'netdeckmanager/forms.html')
+        else:
+            deck_info, counter = {}, 0
+            try:
+                for deck in [deck1_request, deck2_request]:
+                    string_key = re.search('decklist/([0-9]+)/', deck)
+                    deck_key = string_key.group(1)
+                    deck_info[counter] = deck_key
+                    counter += 1
+                old_deck = get_deck(deck_info[0])
+                new_deck = get_deck(deck_info[1])
+                diff_lists = compare_decklist(old_deck, new_deck)
+                named_cards = attach_names(diff_lists, get_list_of_cards())
+                return render(request, 'netdeckmanager/deck_list.html',
+                        {'drop_list' : cards_changed(named_cards, negative=True),
+                         'add_list' : cards_changed(named_cards, negative=False) })
+            except:
+                 return HttpResponse('Keys were not correct')
+    else:
+        return HttpResponse('Else clause fired')
 
 def get_list_of_cards():
     URL = 'http://netrunnerdb.com/api/cards/'
@@ -45,12 +77,3 @@ def cards_changed(named_cards, negative=False):
     else:
         named_cards = {key : value for key, value in named_cards.items() if value > 0}
         return sorted(named_cards.items(), key=lambda x: (x[1], x[0]))
-
-def deck_list(request):
-    old_deck = get_deck('25994')
-    new_deck = get_deck('17417')
-    diff_lists = compare_decklist(old_deck, new_deck)
-    named_cards = attach_names(diff_lists, get_list_of_cards())
-    return render(request, 'netdeckmanager/deck_list.html', 
-        {'drop_list' : cards_changed(named_cards, negative=True),
-        'add_list' : cards_changed(named_cards, negative=False) })

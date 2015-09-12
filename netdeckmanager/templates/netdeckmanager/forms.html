@@ -1,0 +1,9 @@
+<html>
+<body>
+<form method="POST" action="/search/">
+{% csrf_token %}
+<input type="text" name="deck1">
+<input type="text" name="deck2">
+
+<button type="submit">Find my decks!</button>
+</form>

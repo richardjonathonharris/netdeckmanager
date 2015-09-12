@@ -1,5 +1,4 @@
 <html>
-	<p>HTML am I right?</p>
         <h1> Cards you need to drop </h1>
         {% for key, value in drop_list  %}
                 {{ key }} {{ value }}  <br />
@@ -9,4 +8,10 @@
 	{% for key, value in add_list %}
 		{{ key }} {{ value }} <br />
 	{% endfor %}
+        <br />
+        <form method="POST" action="">
+        <input type="hidden" value="refresh"> 
+        {% csrf_token %}
+        <button type="submit" name="new_deck">I want more decks!</button>
+        </form>
 </html>
