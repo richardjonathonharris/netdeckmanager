@@ -1,12 +1,20 @@
 <html>
         <h1> Cards you need to drop </h1>
+	{% for key, value in drop_list %}
+		<img src= {{ value.imagesrc }} width="50", height="70">
+	{% endfor %}
+	<br />
         {% for key, value in drop_list  %}
-                {{ key }} {{ value }}  <br />
+		 <a href={{ value.url }}> {{ key }} </a> {{ value.value }}  <br />
         {% endfor %}
 	<br />
 	<h1> Cards you need to add </h1>
 	{% for key, value in add_list %}
-		{{ key }} {{ value }} <br />
+		<img src= {{ value.imagesrc }} width="50", height="70">
+	{% endfor %}
+	<br />
+	{% for key, value in add_list %}
+        	<a href={{ value.url }}> {{ key }} </a> {{ value.value }}  <br />
 	{% endfor %}
         <br />
         <form method="POST" action="">

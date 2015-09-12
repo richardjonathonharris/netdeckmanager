@@ -40,7 +40,9 @@ def get_list_of_cards():
     cardlist = requests.get(URL).json()
     cards = {}
     for item in list(cardlist):
-        cards[item['code']] = item['title']
+        imagesrc = 'http://netrunnerdb.com' + item['imagesrc'].replace('\/', '/')
+        url = item['url'].replace('\/', '/')
+        cards[item['code']] = {'title':  item['title'], 'imagesrc' : imagesrc, 'url' : url}
     return cards 
 
 def get_deck(deck_id):
@@ -66,14 +68,14 @@ def compare_decklist(old_deck, new_deck):
 def attach_names(diff_list, all_cards):
     named_cards = {}
     for key, value in diff_list.items():
-        card_name = all_cards[key]
-        named_cards[card_name] = value
+        card_name = all_cards[key]['title']
+        named_cards[card_name] = {'value' : value, 'imagesrc' : all_cards[key]['imagesrc'], 'url' : all_cards[key]['url']}
     return named_cards
 
 def cards_changed(named_cards, negative=False):
     if negative:
-        named_cards = {key : value for key, value in named_cards.items() if value < 0}
-        return sorted(named_cards.items(), key=lambda x: (x[1], x[0]))
+        named_cards = {key : value for key, value in named_cards.items() if value['value'] < 0}
+        return sorted(named_cards.items(), key=lambda x: (x[1]['value'], x[0]))
     else:
-        named_cards = {key : value for key, value in named_cards.items() if value > 0}
-        return sorted(named_cards.items(), key=lambda x: (x[1], x[0]))
+        named_cards = {key : value for key, value in named_cards.items() if value['value'] > 0}
+        return sorted(named_cards.items(), key=lambda x: (x[1]['value'], x[0]))
